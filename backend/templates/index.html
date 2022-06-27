@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/main.css">
+    </head>
+    <body>
+        <div class="selectionDiv">
+            <h2>Select the players you want search</h2>
+            <select id="player" value="select player">
+                <option selected>--select player--</option>
+            </select>
+            <button id="add"> Add </button>
+            <button id="remove"> Remove </button>
+            
+        </div>
+        <div>
+            <p id="playerSelected">player selected: </p>
+            <p id="notice"></p>
+            <button id="send"> Search </button>
+        </div>
+        
+        <div id="result">
+            <table id="myTable">
+                <tbody>
+                    <tr>
+                        <th>Player</th>
+                        <th>G</th>
+                        <th>REB</th>
+                        <th>AST</th>
+                        <th>STL</th>
+                        <th>BLK</th>
+                        <th>TOV</th>
+                        <th>PTS</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- <iframe src="/ppn">
+            <html>
+            </html>
+        </iframe> -->
+    
+    <script src={{ url_for('static', _scheme='https', _external=True, filename='js/main.js') }}></script>
+    
+    </body>
+</html>

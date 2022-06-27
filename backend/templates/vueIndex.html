@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="../css/main.css">
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src={{ url_for('static', filename='js/main.js') }}></script>
+    </head>
+    <body>
+        <div id="app">
+            <div id="selectionDiv" class="selectionDiv">
+                <h2>Select the players you want search</h2>
+                <select id="player" value="select player" v-model="selected">
+                    <option value="default" selected>--select player--</option>
+                </select>
+                
+                <button id="add"> Add </button>
+                <button id="remove"> Remove </button> 
+
+            </div>
+            <div>
+                <p id="playerSelected">player selected: </p>
+                <p id="notice">$$ selected $$</p>
+                <button id="send"> Search </button>
+            </div>
+
+            <div id="result">
+                <table id="myTable">
+                    <tbody>
+                        <tr v-if="show">
+                            <th>Player</th>
+                            <th>G</th>
+                            <th>REB</th>
+                            <th>AST</th>
+                            <th>STL</th>
+                            <th>BLK</th>
+                            <th>TOV</th>
+                            <th>PTS</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script>
+
+            (function(){ 
+                var vue = new Vue({
+                        el: '#app',
+                        data: {
+                            selected: 'default' ,
+                            show: false
+                        },
+                        methods:{
+                            update: function(){
+                                this.show = true;
+                            }
+                        },
+                        delimiters :['$$', '$$']
+                });
+                
+                
+                function addSelection(list){
+                    for( i in list){
+                        var opt = document.createElement('option');
+                        opt.value = list[i];
+                        opt.innerHTML = list[i];
+                        select.appendChild(opt);
+                    }
+                }
+
+                function appendSelection(data){
+                    addSelection(data.player);
+                    sessionStorage.setItem("player", JSON.stringify(data));
+                    bindingListener();
+                }
+
+                function bindingListener(){
+                    addButton = document.getElementById("add");
+                    removeButton = document.getElementById("remove"); 
+                    sendButton = document.getElementById("send"); 
+
+                    addButton.addEventListener("click", playerModification);
+                    removeButton.addEventListener("click", playerModification);
+                    sendButton.addEventListener("click", searchStats);
+                }
+
+                var sesStorage = JSON.parse(sessionStorage.getItem("player"));
+                var select = document.getElementById("player");
+                var playerList = [];
+                var nowRoster = {};
+
+                var addButton;
+                var removeButton;
+                if(!sesStorage) {
+                    getPlayer().then(function(response){
+                        var res = JSON.parse(response)
+                        appendSelection(res);
+                    })
+                }else{
+                    appendSelection(sesStorage);
+                }
+            
+
+                function isDuplicate(value){
+                    if(nowRoster[value] == 1) return true;
+                    else return false;
+                }
+
+                function modificationNotice(data, action){
+                    var notice = document.getElementById("notice");
+                    switch(action){
+                        case "duplicated":
+                            notice.innerText = data + " is duplicated";
+                            break;
+                        case "add":
+                            notice.innerText = data + " has added";
+                            break;
+                        case "remove":
+                            notice.innerText = data + " has remove";
+                            break;
+                    }
+                }
+
+
+                function playerModification(e){
+                    var temp = document.getElementById("playerSelected");
+                    var playerName = select.value;
+                    if(e.target == addButton){
+                        if(isDuplicate(playerName)) {
+                            modificationNotice(playerName, "duplicated");
+                            return;
+                        }
+                        temp.innerText += playerName + ",";
+                        playerList.push(playerName);
+                        nowRoster[playerName] = 1;
+                        modificationNotice(playerName, "add");
+                    }else{
+                        temp = playerSelected.childNodes;
+                        playerList.pop();
+                        nowRoster[playerName] = 0;
+                        playerSelected.removeChild(temp[temp.length-1]);
+                        modificationNotice(playerName, "remove");
+                    }
+                }
+
+                function searchStats(){
+                    return new Promise(function(resolve, reject) {
+                        xhr = new XMLHttpRequest();
+                        xhr.open("POST", "http://127.0.0.1:5000/getStats");
+                        xhr.setRequestHeader("Content-Type", "application/json");
+                        console.log(playerList)
+                        xhr.send( JSON.stringify({"player" : playerList} ));
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === XMLHttpRequest.DONE) {
+                                if (xhr.status === 200) {
+                                    searchResult(JSON.parse(xhr.response));
+                                    resolve();
+                                } else {
+                                    reject(new Error(xhr.statusText));
+                                }
+                            }
+                        }
+                        
+                        xhr.onerror = function() {
+                            reject(new Error('Network Error'))
+                        }
+                    });
+                }
+
+                function searchResult(data){
+                    var table = document.getElementById('myTable');
+                    var tbodyRef = table.getElementsByTagName('tbody')[0];
+                    
+                    var result = data.result;
+                    for(player in playerList){
+                        var newRow = tbodyRef.insertRow();
+                        var newCell = newRow.insertCell();
+                        var newText = document.createTextNode(playerList[player]);
+                        newCell.appendChild(newText);
+                        for(stats in result[player]){
+                            var text = result[player][stats];
+                            var newCell = newRow.insertCell();
+                            var newText = document.createTextNode(text);
+                            newCell.appendChild(newText);
+                        }
+                    }
+                    // table.style.display = "block";
+                    vue.update();
+                }
+
+            }());
+        </script>
+    </body>
+</html>

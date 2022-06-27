@@ -1,0 +1,24 @@
+table {
+    /* display: none; */
+    border: 2px solid rgb(100, 100, 100);
+    letter-spacing: 1px;
+    font-family: sans-serif;
+}
+
+.selectionDiv {
+    background: gray;
+    padding: 20px;
+}
+
+td,
+th {
+    border: 1px solid rgb(100, 100, 100);
+    padding: 10px 10px;
+}
+
+td {
+    text-align: center;
+}
+#app{
+    background-color: aqua;
+}
