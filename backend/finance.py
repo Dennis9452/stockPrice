@@ -18,13 +18,17 @@ class StockPricing():
         searchResult = []
         for symbolId in  stockList:
             resultObj = {}
+            print("each:",symbolId)
             try:
                 obj = self.api_client.intraday.quote(symbolId=symbolId)
-                obj_price = obj['data']['quote']['trade']['price']    
+                obj_price = obj['data']['quote']['trade']['price'] 
+                obj_volume = obj['data']['quote']['trade']['volume']   
                 resultObj["id"] = symbolId
                 resultObj["price"] = obj_price
+                resultObj["volume"] = obj_volume
                 searchResult.append(resultObj)
             except Exception as e:
+                print("error:",e)
                 return e
             print(searchResult)
         

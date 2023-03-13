@@ -99,10 +99,9 @@ def addPrice():
     if request.method == 'POST':
         print(request.get_json())
         stockId = request.get_json()['id']
-        # stockList.append(stockId)
     sp = StockPricing()
     try:
-        return jsonify(sp.modifiedStockList("add", stockId))
+        return jsonify(sp.modifiedStockList("add", int(stockId)))
     except Exception as e:
         return abort_msg(e)
     
@@ -150,7 +149,7 @@ def abort_msg(e):
     abort(500, "fail to find target")
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",debug=True,port=5000)
+    app.run(host="0.0.0.0",debug=True,port=8800)
     # from werkzeug.middleware.proxy_fix import ProxyFix
     # app.wsgi_app = ProxyFix(app.wsgi_app)
     # app.run()

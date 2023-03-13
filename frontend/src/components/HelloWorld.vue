@@ -6,6 +6,7 @@
 
 <script setup>
 import Price from './Price.vue';
+setInterval(Price.getStockPrice(),1000);
 </script>
 <script>
 export default {
